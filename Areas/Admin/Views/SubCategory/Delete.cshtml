@@ -1,0 +1,40 @@
+﻿@model Spice.Models.ViewModel.CategorySubCategoryViewModel
+@using Spice.Extensions
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<h2 class="text-info">Sub Category Delete</h2>
+<div class="border backgroundWhite row">
+    <div class="col-8 border-right">
+        <form method="post" asp-action="Delete" asp-route-Id="@Model.SubCategory.Id">
+            <input type="hidden" asp-for="SubCategory.CategoryId" />
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <partial name="_StatusMessage" model="Model.StatusMessage" />
+            <div class="form-group row">
+                <div class="col-3">
+                    <label asp-for="SubCategory.CategoryId" class="col-form-label"></label>
+                </div>
+                <div class="col-5">
+                    <input type="text" asp-for="SubCategory.CategoryId" class="form-control" value="@Model.CategoryList.Where(x => x.Id == Model.SubCategory.CategoryId).FirstOrDefault().Name" disabled />
+                    @*<select id="ddlCategoryList" asp-for="SubCategory.CategoryId" disabled="disabled" asp-items="Model.CategoryList.ToSelectListItem(Model.SubCategory.CategoryId)" class="form-control"></select>*@
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-3">
+                    <label asp-for="SubCategory.Name" class="col-form-label"></label>
+                </div>
+                <div class="col-5">
+                    <input type="text" class="form-control" asp-for="SubCategory.Name" disabled="disabled" />
+                </div>
+                <span class="text-danger" asp-validation-for="SubCategory.Name"></span>
+            </div>
+            <div class="form-group row">
+                <div class="col-8 offset-3">
+                    <partial name="_DeleteAndBackToListPartial" model="Model.SubCategory.Id" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

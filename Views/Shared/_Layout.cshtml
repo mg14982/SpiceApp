@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Spice</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+</head>
+<body class="search-background">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand text-white-50" asp-area="" asp-controller="Home" asp-action="Index">Spice</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse text-white-50">
+                    <partial name="_LoginPartial" />
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item dropdown text-white-50">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenulink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Conetent Management
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                                <a class="dropdown-item" asp-area="Admin" asp-controller="SubCategory" asp-action="Index">Sub Category</a>
+                                <a class="dropdown-item" asp-area="Admin" asp-controller="MenuItem" asp-action="Index">Menu Item</a>
+                                <a class="dropdown-item" href="#">Coupons</a>
+                                <a class="dropdown-item" href="#">Users</a>
+                            </div>
+                        </li>
+                        <li class="nav-item text-white-50">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item text-white-50">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted pl-3 text-white-50" style="background-color:#343a40">
+        <div class="container">
+            &copy; 2021 - Spice - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.tiny.cloud/1/zq48yzbetikmd0h4fi33g0al89bj3ba7w6svlgcyn5vqbwhv/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
