@@ -189,7 +189,7 @@ namespace Spice.Areas.Admin.Controllers
             return RedirectToAction("Edit", new { id = Id });
         }
 
-        //GET - DETAIL
+        //GET - DELETE
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
