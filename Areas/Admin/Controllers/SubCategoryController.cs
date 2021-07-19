@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 using Spice.Models.ViewModel;
 using Spice.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
+using Spice.Utility;
 
 namespace Spice.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.ManagerUser)]
     public class SubCategoryController : Controller
     {
         private readonly ApplicationDbContext _db;
