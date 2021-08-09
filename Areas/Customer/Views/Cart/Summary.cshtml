@@ -1,0 +1,258 @@
+﻿@model Spice.Models.ViewModel.OrderDetailsCart
+@using Microsoft.Extensions.Options 
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@inject IOptions<Spice.Utility.StripeSettings> Stripe
+
+<form method="post">
+    @if (Model.ListCart.Count > 0)
+    {
+        <br />
+        <input type="hidden" asp-for="@Model.ListCart[0].ApplicationUserId" id="userId" />
+        <div class="backgroundWhiteBorder">
+            <div class="container">
+                <div class="card">
+                    <!--Header Start-->
+                    <div class="card-header bg-dark text-light ml-0 row container">
+                        <div class="col-6">
+                            <i class="fa fa-shopping-cart"></i>&nbsp;Order Summary
+                        </div>
+                        <div class="col-6 text-right">
+                            <a asp-area="Customer" asp-controller="Cart" asp-action="Index" class="btn btn-outline-info btn-sm">
+                                Back to Cart
+                            </a>
+                        </div>
+                    </div>
+                    <!--Header End-->
+                    <div class="card-body">
+                        <div class="container rounded p-2">
+                            <div class="row">
+                                <div class="col-12 col-lg-6 pb-4">
+                                    <div class="row">
+                                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="text-info">Pickup Details:</span>
+                                        </h4>
+                                    </div>
+                                    <!--Pickup Name-->
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Name</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input type="text" id="txtPickupName" class="form-control" asp-for="@Model.OrderHeader.PickupaName" />
+                                        </div>
+                                    </div>
+                                    <!--Pickup Phone Number-->
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Phone Number</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input type="text" id="txtPhoneNumber" class="form-control" asp-for="@Model.OrderHeader.PhoneNumber" />
+                                        </div>
+                                    </div>
+                                    <!--Pickup Date-->
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Date</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input type="text" class="form-control" id="datepicker" value="" asp-for="@Model.OrderHeader.PickupDate" />
+                                        </div>
+                                    </div>
+                                    <!--Pickup Time-->
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Time</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input type="text" class="form-control" id="timepicker" value="" asp-for="@Model.OrderHeader.PickupTime" />
+                                        </div>
+                                    </div>
+                                    <!--Additional Instructions-->
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Additional Instructions:</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <textarea asp-for="@Model.OrderHeader.Comments" style="height:100px;" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--ORDER SUMMARY-->
+                                <div class="col-12 col-lg-5 offset-lg-1">
+                                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-info">Order Summary</span>
+                                    </h4>
+                                    <ul class="list-group mb-3">
+                                        @{ var total = 0.0; }
+                                        @foreach (var details in Model.ListCart)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <div>
+                                                    <h6 class="my-0">@details.MenuItem.Name</h6>
+                                                    <small class="text-muted">Quantity: @details.Count</small>
+                                                </div>
+                                                <span class="text-muted">$@(details.MenuItem.Price * details.Count)</span>
+                                                @{ total += (details.MenuItem.Price * details.Count); }
+                                            </li>
+
+                                        }
+                                        @if (Model.OrderHeader.CouponCode != null && Model.OrderHeader.CouponCode.Trim() != "")
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <div class="text-success">
+                                                    <h6 class="my-0">Promo Code</h6>
+                                                    <small class="text-muted">@Model.OrderHeader.CouponCode</small>
+                                                </div>
+                                                <span class="text-success">-$@(total - Model.OrderHeader.OrderTotal)</span>
+                                            </li>
+                                        }
+                                    <li class="list-group-item d-flex justify-content-between bg-light">
+                                        <h6 class="text-info">Total</h6>
+                                        <h6 class="text-info">$@Model.OrderHeader.OrderTotal</h6>
+                                    </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-12 col-md-4 offset-md-8">
+                                @{ 
+                                    var orderTotalForStrip = Model.OrderHeader.OrderTotal * 100;
+                                }
+                                <script src="https:\\checkout.stripe.com\checkout.js" 
+                                        class="stripe-button"
+                                        data-key="@Stripe.Value.PublishedKey"
+                                        data-amount="@Model.OrderHeader.OrderTotal"
+                                        data-name="Spice Demo App"
+                                        data-label="Place order"
+                                        data-description="Good Food"
+                                        data-locale="auto"
+                                        data-allow-remember-me="false"
+                                        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                        ></script>
+                                <script>
+                                    document.getElementsByClassName("stripe-button-el")[0].style.display = "none";
+                                </script>
+                                <button type="submit" class="btn btn-primary form-control" id="btnSubmit" value="Place Order">Place Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="backgroundWhiteBorder">No items added to the shopping cart....</div>
+    }
+
+</form>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            var minDt = 0;
+
+            if (getTimeFromCurrentDate() >= 20) {
+                minDt = 1;
+            }
+
+
+            $('#datepicker').datepicker({
+                minDate: minDt,
+                maxDate: "+1W",
+                onSelect: function (dateString, datepicker) {
+                    setTimePicker();
+                }
+            });
+            $('#timepicker').timepicker({
+                'minTime': '11:00 AM',
+                'maxTime': '9:00 PM',
+            });
+
+
+            $('#btnSubmit').on('click', function () {
+                var valid = validateInput();
+                return valid;
+            });
+        });
+
+        function setTimePicker() {
+            var selectedDate = $('#datepicker').val();
+            var currDt = new Date(selectedDate);
+            var today = new Date();
+
+            currDt.setHours(0, 0, 0, 0);
+            if (currDt > selectedDate) {
+                selectedTime = '11:00am';
+            } else {
+                selectedTime = getTimeFromCurrentDate();
+            }
+
+            $('#timepicker').timepicker('option', 'minTime', selectedTime);
+        }
+
+        function getTimeFromCurrentDate() {
+            var currDt = new Date();
+            var minTime = '';
+            if (currDt.getHours() < 11) {
+                minTime = '12:00pm';
+            } else {
+                if (currDt.getMinutes() < 30) {
+                    minTime = (currDt.getHours() + 1).toString() + ":30pm";
+                } else {
+                    minTime = (currDt.getHours() + 2).toString() + ":00pm";
+                }
+            }
+            return minTime;
+        }
+
+        function validateInput() {
+            var txtName = $('#txtPickupName').val();
+            var txtPhoneNumber = $('#txtPhoneNumber').val();
+            var txtDatePicker = $('#datepicker').val();
+            var txtTimePicker = $('#timepicker').val();
+            var isvalid = false;
+            if (txtName != undefined && txtName != "") {
+                isvalid = true;
+            } else {
+                alert("Please enter pickup name!");
+                return false;
+            }
+            //validate phone number
+            if (txtPhoneNumber != undefined && txtPhoneNumber != "") {
+                isvalid = true;
+            } else {
+                alert("Please enter phone number!");
+                return false;
+            }
+            //validate pick up date
+            if (txtDatePicker != undefined && txtDatePicker != "") {
+                isvalid = true;
+            } else {
+                alert("Please enter pickup date!");
+                return false;
+            }
+            //validate pick up time
+            if (txtTimePicker != undefined && txtTimePicker != "") {
+                isvalid = true;
+            } else {
+                alert("Please enter pickup time!");
+                return false;
+            }
+            if (isvalid) {
+                return true;
+            }
+        }
+    </script>
+} 
