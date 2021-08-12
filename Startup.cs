@@ -41,6 +41,11 @@ namespace Spice
             services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddAuthentication().AddFacebook(facebookOptions =>
+            {
+                facebookOptions.AppId = "257342982654284";
+                facebookOptions.AppSecret = "8e2e092f998ee7f9e9902c452fec099f";
+            });
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
@@ -71,6 +76,7 @@ namespace Spice
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
