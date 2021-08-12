@@ -20,6 +20,7 @@ namespace Spice.Utility
         public const string OrderStatusInProcess = "InProcess";
         public const string OrderStatusReady = "Ready";
         public const string OrderStatusCompleted = "Completed";
+        public const string OrderStatusCancelled = "Cancelled";
         //Payment Status
         public const string PaymentStatusPending = "Pending";
         public const string PaymentStatusApprove = "Approve";

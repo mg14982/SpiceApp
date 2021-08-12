@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spice.Data;
@@ -18,7 +19,7 @@ namespace Spice.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _db;
-
+        private int PageSize = 2;
         public CartController(ApplicationDbContext db)
         {
             _db = db;
@@ -226,8 +227,8 @@ namespace Spice.Areas.Customer.Controllers
                 orderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusRejected;
             }
             await _db.SaveChangesAsync();
-            return RedirectToAction("Index", "Home");
-            //return RedirectToAction("Confirm","Order", new { id = orderDetailsCart.OrderHeader.Id });
+            //return RedirectToAction("Index", "Home");
+            return RedirectToAction("Confirm","Order", new { id = orderDetailsCart.OrderHeader.Id });
         }
 
         //Add Coupon Code into Shopping Cart
@@ -290,6 +291,57 @@ namespace Spice.Areas.Customer.Controllers
             HttpContext.Session.SetInt32(SD.ssShoppingCartCount, cnt);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        public async Task<IActionResult> OrderHistory(int productPage=1)
+        {
+            //Get the user id frm claims identity
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claims = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            OrderListViewModel orderListVM = new OrderListViewModel()
+            {
+                Orders = new List<OrderDetailsViewModel>()
+            };
+
+            List<OrderHeader> listOrderHeader = await _db.OrderHeader.Include("ApplicationUser").Where(c => c.UserId == claims.Value).ToListAsync();
+
+            foreach(var orderHeader in listOrderHeader)
+            {
+                OrderDetailsViewModel orderdetailvm = new OrderDetailsViewModel()
+                {
+                     OrderHeader = orderHeader,
+                     OrderDetails = await _db.OrderDetails.Where(x => x.OrderId == orderHeader.Id).ToListAsync()
+                };
+                orderListVM.Orders.Add(orderdetailvm);
+            }
+
+            //get the count 
+            var count = orderListVM.Orders.Count;
+            orderListVM.Orders = orderListVM.Orders.OrderByDescending(p => p.OrderHeader.Id).
+                Skip((productPage - 1) * PageSize).
+                Take(PageSize).ToList();
+
+            orderListVM.PageInfo = new PageInfo()
+            {
+                CurrentPage = productPage,
+                ItemsPerpage = PageSize,
+                TotalItems = count,
+                utlParam = "/Customer/Cart/OrderHistory?productPage=:"
+            };
+            return View(orderListVM);
+        }
+
+        public async Task<IActionResult> GetOrderDetails(int Id)
+        {
+            OrderDetailsViewModel orderDetailsVM = new OrderDetailsViewModel()
+            {
+                OrderHeader = await _db.OrderHeader.Where(o => o.Id == Id).FirstOrDefaultAsync(),
+                OrderDetails = await _db.OrderDetails.Where(o => o.OrderId == Id).ToListAsync()
+            };
+            orderDetailsVM.OrderHeader.ApplicationUser = await _db.ApplicationUser.Where(c => c.Id == orderDetailsVM.OrderHeader.UserId).FirstOrDefaultAsync();
+            return PartialView("_IndividualOrderDetails", orderDetailsVM);
         }
     }
 }

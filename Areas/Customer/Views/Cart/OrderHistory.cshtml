@@ -1,0 +1,138 @@
+﻿@model Spice.Models.ViewModel.OrderListViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<br />
+<div class="border backgroundWhite">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-info">Order Details List</h2>
+        </div>
+        <div class="col-6 text-info text-right">
+            <partial name="_CreateButtonPartial" />
+        </div>
+    </div>
+    <br />
+    <div>
+        @if (Model.Orders.Count() > 0)
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>
+                        @Html.DisplayNameFor(model => model.Orders[0].OrderHeader.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Orders[0].OrderHeader.PickupaName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Orders[0].OrderHeader.ApplicationUser.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Orders[0].OrderHeader.PickupTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Orders[0].OrderHeader.OrderTotal)
+                    </th>
+                    <th>
+                        Total Items
+                    </th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model.Orders)
+                {
+            <tr>
+                <td>
+                    @Html.DisplayFor(model => item.OrderHeader.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.OrderHeader.PickupaName)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.OrderHeader.ApplicationUser.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.OrderHeader.PickupTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.OrderHeader.OrderTotal)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.OrderDetails.Count)
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-success anchorDetails" data-id="@item.OrderHeader.Id" data-toggle="modal">
+                        <i class="fas fa-list-alt"></i>&nbsp;Details
+                    </button>
+                </td>
+            </tr>
+                }
+            </table>
+            <div page-model="@Model.PageInfo" 
+                 page-classes-enabled="true" 
+                 page-class="btn border" 
+                 page-class-normal="btn btn-light" 
+                 page-class-selected="btn btn-info active"
+                 class="btn-group float-right">
+            </div>
+            <br />
+        }
+        else
+        {
+            <span class="text-danger">
+                Category not exists
+            </span>
+        }
+
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog-centered modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-light justify-content-center">
+                <h5 class="modal-title">Order Details</h5>
+            </div>
+            <div class="modal-body justify-content-center" id="modalContent">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts 
+{
+    <script>
+        $(document).ready(function () {
+            $('.anchorDetails').click(function () {
+                var buttonClicked = $(this);
+                var id = buttonClicked.attr("data-id");
+                alert(id);
+                $.ajax({
+                    url: '/Customer/Cart/GetOrderDetails',
+                    contentType: "application/json;",
+                    type: "GET",
+                    data: { "Id": id },
+                    cache: false,
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data);
+                        $('#modalContent').html(data);
+                        $("#myModal").modal('show');
+                    },
+                    error: function (err) {
+                        $('#modalContent').html(JSON.stringify(err));
+                        $("#myModal").modal('show');
+                        //alert('error in downloading order details' + JSON.stringify(err));
+                    }
+                })
+            });
+        });
+    </script>
+}
